@@ -5,10 +5,25 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Device;
 use App\Http\Requests\StoreDeviceRequest;
 use App\Http\Requests\UpdateDeviceRequest;
-use App\Http\Controllers\Controller; 
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Http;
 
 class DeviceController extends Controller
 {
+    /**
+     * Realizar la solicitud a la API externa de PRTG y manejar la respuesta.
+     */
+    private function makeApiDeviceRequest()
+    {
+        $response = Http::withoutVerifying()->get('https://127.0.0.1/api/table.json?content=sensors&columns=device,sensor,status&username=root&password=prtgadmin');
+
+        if ($response->successful()) {
+            return response()->json($response->json());
+        } else {
+            return response()->json(['message' => 'Error al obtener datos de la API externa de PRTG'], 500);
+        }
+    }
+    
     /**
      * Display a listing of the resource.
      */
